@@ -50,7 +50,7 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   
   odate=date_handler(observationnumber,parsed_json)
   
-  con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{ocity}','#{ocountry}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
+  con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{city}','#{country}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
 
   countobs=parsed_json['history']['observations'].count
 
@@ -63,7 +63,7 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
     observationconds = parsed_json['history']['observations'][observationnumber]['conds']
     wspdm = parsed_json['history']['observations'][observationnumber]['wspdm']
     
-    con.query("INSERT INTO observations(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{ocity}','#{ocountry}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
+    con.query("INSERT INTO observations(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{city}','#{country}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
     
     observationnumber = observationnumber+1
     
@@ -71,7 +71,7 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   
   starttime=starttime+86400
 
-print "Stored weather data for #{nicedate} in #{ocity}, #{ocountry}\n"
+print "Stored weather data for #{nicedate} in #{city}, #{country}\n"
 
 end
 
