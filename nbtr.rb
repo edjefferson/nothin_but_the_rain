@@ -36,8 +36,8 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   parsed_json = JSON.parse(json_string)
 
   nicedate = parsed_json['history']['date']['pretty']
-  ocity = parsed_json['location']['city']
-  ocountry = parsed_json['location']['country']
+  city = parsed_json['location']['city']
+  country = parsed_json['location']['country']
   wmo = parsed_json['location']['wmo']
   meantempm = parsed_json['history']['dailysummary'].first['meantempm']
   maxtempm = parsed_json['history']['dailysummary'].first['maxtempm']
