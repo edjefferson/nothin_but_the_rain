@@ -14,7 +14,7 @@ endtime=Time.local(2012,01,03)
 
 while starttime<endtime
   
-open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.strftime("%Y%m%d") + "/geolookup/conditions/q/UK/London.json") do |f|
+open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.strftime("%Y%m%d") + "/geolookup/conditions/q/" + ARGV[0]  + "/" + ARGV[1] + ".json") do |f|
 
   json_string = f.read
   parsed_json = JSON.parse(json_string)
