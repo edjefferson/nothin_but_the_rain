@@ -1,4 +1,4 @@
 --- !ruby/object:YAML::DomainType 
   domain: "nothin_but_the_rain.yaml.org,2002"
   type_id: settings
-  value: "api-key:test database-name:test database-location:test db-user:test db-pass:test"
+  value: "api-key:test db-address:test db-name:test db-user:test db-pass:test"
