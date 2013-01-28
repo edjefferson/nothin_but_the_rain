@@ -13,7 +13,7 @@ starttime=Time.local(ARGV[2],ARGV[3],ARGV[4])
 endtimeplusone=Time.local(ARGV[5],ARGV[6],ARGV[7])
 endtime=endtimeplusone+86400
 
-if endtime-starttime>3200000
+if endtime-starttime>33000000
   
   print "You only get 500 free API requests a day so probably don't do this?\n"
   
@@ -77,8 +77,9 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
     
   end
   starttime=starttime+86400
-
+print "Stored weather data for #{nicedate} in #{ocity}, #{ocountry}\n"
 end
+
 sleep 6
 end
 end
