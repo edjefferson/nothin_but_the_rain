@@ -31,13 +31,9 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   
 
   
-  print "mean temperature on #{nicedate} was: #{meantempm}\n"
-  print "max temperature on #{nicedate} was: #{maxtempm}\n"
-  print "min temperature on #{nicedate} was: #{mintempm}\n"
-  print "preciptation on #{nicedate} was: #{precipm}\n"
-  print "snow depth on #{nicedate} was: #{snowdepthm}\n"
+
   finalobservationtime = parsed_json['history']['observations'].last['date']['pretty']
-  print "#{finalobservationtime}\n"
+
   observationnumber = 0
   oyear = parsed_json['history']['observations'][observationnumber]['date']['year'].to_s
   omon = parsed_json['history']['observations'][observationnumber]['date']['mon'].to_s
@@ -53,11 +49,9 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   finaldate = Time.local(fyear,fmon,fmday,fhour,fmin)
   con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{ocity}','#{ocountry}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
 
-  print "#{odate}\n"
-  print "#{finaldate}\n"
   
   countobs=parsed_json['history']['observations'].count
-  print "#{countobs}\n"
+
   
   while observationnumber < countobs
 
@@ -72,7 +66,6 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
     observationconds = parsed_json['history']['observations'][observationnumber]['conds']
     wspdm = parsed_json['history']['observations'][observationnumber]['wspdm']
     con.query("INSERT INTO observations(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{ocity}','#{ocountry}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
-    #File.open("results.txt", 'a') { |file| file.write("#{nicedate};#{temp_c}\n") }
     observationnumber = observationnumber+1
     
   end
