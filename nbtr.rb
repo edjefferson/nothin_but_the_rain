@@ -3,6 +3,17 @@ require 'json'
 require 'mysql'
 require './settings.rb'
 
+def date_handler(param1,param2)
+  year = param2['history']['observations'][param1]['date']['year'].to_s
+  mon = param2['history']['observations'][param1]['date']['mon'].to_s
+  mday = param2['history']['observations'][param1]['date']['mday'].to_s
+  hour = param2['history']['observations'][param1]['date']['hour'].to_s
+  min = param2['history']['observations'][param1]['date']['min'].to_s
+  date = Time.local(year,mon,mday,hour,min)
+  return date
+end
+
+
 load_settings('nbtrsettings.yaml')
 
 con = Mysql.new @db_address, @db_user, @db_pass, @db_name
@@ -35,27 +46,18 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   snowdepthm = parsed_json['history']['dailysummary'].first['snowdepthm']
   meanwindspdm = parsed_json['history']['dailysummary'].first['meanwindspdm']
   
-  oyear = parsed_json['history']['observations'][observationnumber]['date']['year'].to_s
-  omon = parsed_json['history']['observations'][observationnumber]['date']['mon'].to_s
-  omday = parsed_json['history']['observations'][observationnumber]['date']['mday'].to_s
-  ohour = parsed_json['history']['observations'][observationnumber]['date']['hour'].to_s
-  omin = parsed_json['history']['observations'][observationnumber]['date']['min'].to_s
-  odate = Time.local(oyear,omon,omday,ohour,omin)
+  observationnumber = 0
+  
+  odate=date_handler(observationnumber,parsed_json)
   
   con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{ocity}','#{ocountry}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
 
-  observationnumber = 0
   countobs=parsed_json['history']['observations'].count
 
   
   while observationnumber < countobs
 
-    ioyear = parsed_json['history']['observations'][observationnumber]['date']['year'].to_s
-    iomon = parsed_json['history']['observations'][observationnumber]['date']['mon'].to_s
-    iomday = parsed_json['history']['observations'][observationnumber]['date']['mday'].to_s
-    iohour = parsed_json['history']['observations'][observationnumber]['date']['hour'].to_s
-    iomin = parsed_json['history']['observations'][observationnumber]['date']['min'].to_s
-    iodate = Time.local(ioyear,iomon,iomday,iohour,iomin)  
+  iodate=date_handler(observationnumber,parsed_json)
 
     observationtemp = parsed_json['history']['observations'][observationnumber]['tempm']
     observationconds = parsed_json['history']['observations'][observationnumber]['conds']
