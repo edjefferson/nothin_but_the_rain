@@ -3,9 +3,7 @@ require 'json'
 require 'mysql'
 require './settings.rb'
 
-
 load_settings('nbtrsettings.yaml')
-
 
 con = Mysql.new @db_address, @db_user, @db_pass, @db_name
 
@@ -25,6 +23,7 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
 
   json_string = f.read
   parsed_json = JSON.parse(json_string)
+
   nicedate = parsed_json['history']['date']['pretty']
   ocity = parsed_json['location']['city']
   ocountry = parsed_json['location']['country']
@@ -36,19 +35,16 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   snowdepthm = parsed_json['history']['dailysummary'].first['snowdepthm']
   meanwindspdm = parsed_json['history']['dailysummary'].first['meanwindspdm']
   
-
-  
-
-  observationnumber = 0
   oyear = parsed_json['history']['observations'][observationnumber]['date']['year'].to_s
   omon = parsed_json['history']['observations'][observationnumber]['date']['mon'].to_s
   omday = parsed_json['history']['observations'][observationnumber]['date']['mday'].to_s
   ohour = parsed_json['history']['observations'][observationnumber]['date']['hour'].to_s
   omin = parsed_json['history']['observations'][observationnumber]['date']['min'].to_s
   odate = Time.local(oyear,omon,omday,ohour,omin)
+  
   con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{ocity}','#{ocountry}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
 
-  
+  observationnumber = 0
   countobs=parsed_json['history']['observations'].count
 
   
@@ -64,12 +60,17 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
     observationtemp = parsed_json['history']['observations'][observationnumber]['tempm']
     observationconds = parsed_json['history']['observations'][observationnumber]['conds']
     wspdm = parsed_json['history']['observations'][observationnumber]['wspdm']
+    
     con.query("INSERT INTO observations(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{ocity}','#{ocountry}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
+    
     observationnumber = observationnumber+1
     
   end
+  
   starttime=starttime+86400
+
 print "Stored weather data for #{nicedate} in #{ocity}, #{ocountry}\n"
+
 end
 
 sleep 6
