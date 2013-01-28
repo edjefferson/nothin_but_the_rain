@@ -1,0 +1,83 @@
+require 'open-uri'
+require 'json'
+require 'mysql'
+require './settings.rb'
+
+
+load_settings('nbtrsettings.yaml')
+
+
+con = Mysql.new @db_address, @db_user, @db_pass, @db_name
+
+starttime=Time.local(2012,01,01)
+endtime=Time.local(2012,01,03)
+
+while starttime<endtime
+  
+open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.strftime("%Y%m%d") + "/geolookup/conditions/q/UK/London.json") do |f|
+
+  json_string = f.read
+  parsed_json = JSON.parse(json_string)
+  nicedate = parsed_json['history']['date']['pretty']
+  ocity = parsed_json['location']['city']
+  ocountry = parsed_json['location']['country']
+  wmo = parsed_json['location']['wmo']
+  meantempm = parsed_json['history']['dailysummary'].first['meantempm']
+  maxtempm = parsed_json['history']['dailysummary'].first['maxtempm']
+  mintempm = parsed_json['history']['dailysummary'].first['mintempm']
+  precipm = parsed_json['history']['dailysummary'].first['precipm']
+  snowdepthm = parsed_json['history']['dailysummary'].first['snowdepthm']
+  meanwindspdm = parsed_json['history']['dailysummary'].first['meanwindspdm']
+  
+
+  
+  print "mean temperature on #{nicedate} was: #{meantempm}\n"
+  print "max temperature on #{nicedate} was: #{maxtempm}\n"
+  print "min temperature on #{nicedate} was: #{mintempm}\n"
+  print "preciptation on #{nicedate} was: #{precipm}\n"
+  print "snow depth on #{nicedate} was: #{snowdepthm}\n"
+  finalobservationtime = parsed_json['history']['observations'].last['date']['pretty']
+  print "#{finalobservationtime}\n"
+  observationnumber = 0
+  oyear = parsed_json['history']['observations'][observationnumber]['date']['year'].to_s
+  omon = parsed_json['history']['observations'][observationnumber]['date']['mon'].to_s
+  omday = parsed_json['history']['observations'][observationnumber]['date']['mday'].to_s
+  ohour = parsed_json['history']['observations'][observationnumber]['date']['hour'].to_s
+  omin = parsed_json['history']['observations'][observationnumber]['date']['min'].to_s
+  odate = Time.local(oyear,omon,omday,ohour,omin)
+  fyear = parsed_json['history']['observations'].last['date']['year'].to_s
+  fmon = parsed_json['history']['observations'].last['date']['mon'].to_s
+  fmday = parsed_json['history']['observations'].last['date']['mday'].to_s
+  fhour = parsed_json['history']['observations'].last['date']['hour'].to_s
+  fmin = parsed_json['history']['observations'].last['date']['min'].to_s
+  finaldate = Time.local(fyear,fmon,fmday,fhour,fmin)
+  con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{ocity}','#{ocountry}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
+
+  print "#{odate}\n"
+  print "#{finaldate}\n"
+  
+  countobs=parsed_json['history']['observations'].count
+  print "#{countobs}\n"
+  
+  while observationnumber < countobs
+
+    ioyear = parsed_json['history']['observations'][observationnumber]['date']['year'].to_s
+    iomon = parsed_json['history']['observations'][observationnumber]['date']['mon'].to_s
+    iomday = parsed_json['history']['observations'][observationnumber]['date']['mday'].to_s
+    iohour = parsed_json['history']['observations'][observationnumber]['date']['hour'].to_s
+    iomin = parsed_json['history']['observations'][observationnumber]['date']['min'].to_s
+    iodate = Time.local(ioyear,iomon,iomday,iohour,iomin)  
+
+    observationtemp = parsed_json['history']['observations'][observationnumber]['tempm']
+    observationconds = parsed_json['history']['observations'][observationnumber]['conds']
+    wspdm = parsed_json['history']['observations'][observationnumber]['wspdm']
+    con.query("INSERT INTO observations(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{ocity}','#{ocountry}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
+    #File.open("results.txt", 'a') { |file| file.write("#{nicedate};#{temp_c}\n") }
+    observationnumber = observationnumber+1
+    
+  end
+  starttime=starttime+86400
+
+end
+sleep 6
+end
