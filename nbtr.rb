@@ -11,7 +11,7 @@ con = Mysql.new @db_address, @db_user, @db_pass, @db_name
 
 starttime=Time.local(ARGV[2],ARGV[3],ARGV[4])
 endtimeplusone=Time.local(ARGV[5],ARGV[6],ARGV[7])
-endtime=endtimeplusone-86400
+endtime=endtimeplusone+86400
 
 if endtime-starttime>3200000
   
@@ -21,7 +21,7 @@ else
 
 while starttime<endtime
   
-open("http://api.wunderground.com/api/" + @wuapikeys + "/history_" + starttime.strftime("%Y%m%d") + "/geolookup/conditions/q/" + ARGV[0]  + "/" + ARGV[1] + ".json") do |f|
+open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.strftime("%Y%m%d") + "/geolookup/conditions/q/" + ARGV[0]  + "/" + ARGV[1] + ".json") do |f|
 
   json_string = f.read
   parsed_json = JSON.parse(json_string)
