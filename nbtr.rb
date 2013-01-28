@@ -39,8 +39,6 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
 
   
 
-  finalobservationtime = parsed_json['history']['observations'].last['date']['pretty']
-
   observationnumber = 0
   oyear = parsed_json['history']['observations'][observationnumber]['date']['year'].to_s
   omon = parsed_json['history']['observations'][observationnumber]['date']['mon'].to_s
