@@ -48,12 +48,6 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   ohour = parsed_json['history']['observations'][observationnumber]['date']['hour'].to_s
   omin = parsed_json['history']['observations'][observationnumber]['date']['min'].to_s
   odate = Time.local(oyear,omon,omday,ohour,omin)
-  fyear = parsed_json['history']['observations'].last['date']['year'].to_s
-  fmon = parsed_json['history']['observations'].last['date']['mon'].to_s
-  fmday = parsed_json['history']['observations'].last['date']['mday'].to_s
-  fhour = parsed_json['history']['observations'].last['date']['hour'].to_s
-  fmin = parsed_json['history']['observations'].last['date']['min'].to_s
-  finaldate = Time.local(fyear,fmon,fmday,fhour,fmin)
   con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{ocity}','#{ocountry}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
 
   
