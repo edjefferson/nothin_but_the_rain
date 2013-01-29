@@ -1,0 +1,17 @@
+GEM
+  remote: http://rubygems.org/
+  remote: http://rubygems.org/
+  remote: http://rubygems.org/
+  remote: http://gems.rubyforge.org/
+  remote: http://rubygems.org/
+  remote: http://gemcutter.org/
+  specs:
+    json (1.7.6)
+    mysql (2.9.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  json
+  mysql
