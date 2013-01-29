@@ -13,9 +13,9 @@ def date_handler(param1,param2)
   return date
 end
 
-if ARGV.length!=8
+if ARGV.length!=8 or ARGV[2].length!=4 or ARGV[3].length!=2 or ARGV[4].length!=2 or ARGV[5].length!=4 or ARGV[6].length!=2 or ARGV[7].length!=2
   
-  print "You didn't enter enough parameters you stupit idoit\n"
+  print "You didn't enter correct parameters you stupit idoit\n"
   
 else
 
