@@ -13,6 +13,11 @@ def date_handler(param1,param2)
   return date
 end
 
+if ARGV.length!=8
+  
+  print "You didn't enter enough parameters you stupit idoit\n"
+  
+else
 
 load_settings('nbtrsettings.yaml')
 
@@ -76,5 +81,6 @@ print "Stored weather data for #{nicedate} in #{city}, #{country}\n"
 end
 
 sleep 6
+end
 end
 end
