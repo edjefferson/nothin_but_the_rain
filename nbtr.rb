@@ -55,9 +55,6 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   
   con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{city}','#{country}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
 
-  countobs=parsed_json['history']['observations'].count
-
-  
   parsed_json['history']['observations'].each_with_index do |v, i|
 
   iodate=date_handler(i,parsed_json)
