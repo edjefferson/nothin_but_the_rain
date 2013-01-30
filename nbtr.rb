@@ -4,11 +4,11 @@ require 'mysql'
 require './settings.rb'
 
 def date_handler(param1,param2)
-  year = param2['history']['observations'][param1]['date']['year'].to_s
-  mon = param2['history']['observations'][param1]['date']['mon'].to_s
-  mday = param2['history']['observations'][param1]['date']['mday'].to_s
-  hour = param2['history']['observations'][param1]['date']['hour'].to_s
-  min = param2['history']['observations'][param1]['date']['min'].to_s
+  year = param2[param1]['date']['year'].to_s
+  mon = param2[param1]['date']['mon'].to_s
+  mday = param2[param1]['date']['mday'].to_s
+  hour = param2[param1]['date']['hour'].to_s
+  min = param2[param1]['date']['min'].to_s
   date = Time.local(year,mon,mday,hour,min)
   return date
 end
@@ -40,32 +40,35 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   json_string = f.read
   parsed_json = JSON.parse(json_string)
 
+  dailysummary = parsed_json['history']['dailysummary']
+  location = parsed_json['location']
   nicedate = parsed_json['history']['date']['pretty']
-  city = parsed_json['location']['city']
-  country = parsed_json['location']['country']
-  wmo = parsed_json['location']['wmo']
-  meantempm = parsed_json['history']['dailysummary'].first['meantempm']
-  maxtempm = parsed_json['history']['dailysummary'].first['maxtempm']
-  mintempm = parsed_json['history']['dailysummary'].first['mintempm']
-  precipm = parsed_json['history']['dailysummary'].first['precipm']
-  snowdepthm = parsed_json['history']['dailysummary'].first['snowdepthm']
-  meanwindspdm = parsed_json['history']['dailysummary'].first['meanwindspdm']
+  ho = parsed_json['history']['observations']
   
-  odate=date_handler(0,parsed_json)
+  city = location['city']
+  country = location['country']
+  wmo = location['wmo']
   
-  con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{city}','#{country}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
+  meantempm = dailysummary[0]['meantempm']
+  maxtempm = dailysummary[0]['maxtempm']
+  mintempm = dailysummary[0]['mintempm']
+  precipm = dailysummary[0]['precipm']
+  snowdepthm = dailysummary[0]['snowdepthm']
+  meanwindspdm = dailysummary[0]['meanwindspdm']
+  
+  odate=date_handler(0,ho)
+  
+  con.query("INSERT INTO daily_observations_copy(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{city}','#{country}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
 
-  parsed_json['history']['observations'].each_with_index do |v, i|
+  ho.each_with_index do |v, i|
 
-  iodate=date_handler(i,parsed_json)
+  iodate=date_handler(i,ho)
 
-    observationtemp = parsed_json['history']['observations'][i]['tempm']
-    observationconds = parsed_json['history']['observations'][i]['conds']
-    wspdm = parsed_json['history']['observations'][i]['wspdm']
+    observationtemp = ho[i]['tempm']
+    observationconds = ho[i]['conds']
+    wspdm = ho[i]['wspdm']
     
-    con.query("INSERT INTO observations(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{city}','#{country}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
-    
-    
+    con.query("INSERT INTO observations_copy(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{city}','#{country}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
     
   end
   
@@ -76,6 +79,7 @@ print "Stored weather data for #{nicedate} in #{city}, #{country}\n"
 end
 
 sleep 6
+
 end
 end
 end
