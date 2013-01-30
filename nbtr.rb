@@ -58,7 +58,7 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
   
   odate=date_handler(0,ho)
   
-  con.query("INSERT INTO daily_observations_copy(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{city}','#{country}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
+  con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{city}','#{country}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
 
   ho.each_with_index do |v, i|
 
@@ -68,7 +68,7 @@ open("http://api.wunderground.com/api/" + @wuapikey + "/history_" + starttime.st
     observationconds = ho[i]['conds']
     wspdm = ho[i]['wspdm']
     
-    con.query("INSERT INTO observations_copy(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{city}','#{country}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
+    con.query("INSERT INTO observations(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{city}','#{country}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
     
   end
   
