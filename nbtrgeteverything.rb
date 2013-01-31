@@ -5,28 +5,16 @@ require 'date'
 require './settings.rb'
 
 class Hash
-  #pass single or array of keys, which will be removed, returning the remaining hash
   def remove!(*keys)
     keys.each{|key| self.delete(key) }
     self
-  end
-
-  #non-destructive version
-  def remove(*keys)
-    self.dup.remove!(*keys)
   end
 end
 
 load_settings('nbtrsettings.yaml')
 
 def date_handler(param1,param2)
-  year = param2[param1]['date']['year'].to_s
-  mon = param2[param1]['date']['mon'].to_s
-  mday = param2[param1]['date']['mday'].to_s
-  hour = param2[param1]['date']['hour'].to_s
-  min = param2[param1]['date']['min'].to_s
-  hdate = Time.local(year,mon,mday,hour,min)
-  return hdate
+ Time.new(*param2[param1]['date'].values[1..5])
 end
 
 def nbtrmain(a1,a2,startdate,enddate)
@@ -61,10 +49,9 @@ def nbtrmain(a1,a2,startdate,enddate)
           
           dailysummary.remove!("date")
           
-          hod=ho[1].remove("date","utcdate")
-
-          ckeys=dailysummary.keys.join(",").gsub(',', ' varchar(255),') << " varchar(255)"
-          ckeys2=hod.keys.join(",").gsub(',', ' varchar(255),') << " varchar(255)"
+          #hod=ho[1].remove("date","utcdate")
+          #ckeys=dailysummary.keys.join(",").gsub(',', ' varchar(255),') << " varchar(255)"
+          #ckeys2=hod.keys.join(",").gsub(',', ' varchar(255),') << " varchar(255)"
           #con.query("CREATE TABLE daily_observations_new (city varchar(255),country varchar(255),date datetime,#{ckeys})") #uncommenttheseifrunningforfirsttime
           #con.query("CREATE TABLE observations_new (city varchar(255),country varchar(255),observed_at datetime,#{ckeys2})") #uncommenttheseifrunningforfirsttime
           
@@ -77,7 +64,6 @@ def nbtrmain(a1,a2,startdate,enddate)
             iodate=date_handler(i,ho)
             
             ho[i].remove!("date","utcdate")
-            
             
     
             con.query("INSERT INTO observations_new(city,country,observed_at,#{ho[i].keys.join(',')}) VALUES('#{city}','#{country}','#{iodate}','#{ho[i].values.join('\',\'')}')")
