@@ -4,6 +4,19 @@ require 'mysql'
 require 'date'
 require './settings.rb'
 
+class Hash
+  #pass single or array of keys, which will be removed, returning the remaining hash
+  def remove!(*keys)
+    keys.each{|key| self.delete(key) }
+    self
+  end
+
+  #non-destructive version
+  def remove(*keys)
+    self.dup.remove!(*keys)
+  end
+end
+
 load_settings('nbtrsettings.yaml')
 
 def date_handler(param1,param2)
@@ -37,7 +50,7 @@ def nbtrmain(a1,a2,startdate,enddate)
           json_string = f.read
           parsed_json = JSON.parse(json_string)
 
-          dailysummary = parsed_json['history']['dailysummary']
+          dailysummary = parsed_json['history']['dailysummary'][0]
           location = parsed_json['location']
           nicedate = parsed_json['history']['date']['pretty']
           ho = parsed_json['history']['observations']
@@ -45,27 +58,29 @@ def nbtrmain(a1,a2,startdate,enddate)
           city = location['city']
           country = location['country']
           wmo = location['wmo']
-  
-          meantempm = dailysummary[0]['meantempm']
-          maxtempm = dailysummary[0]['maxtempm']
-          mintempm = dailysummary[0]['mintempm']
-          precipm = dailysummary[0]['precipm']
-          snowdepthm = dailysummary[0]['snowdepthm']
-          meanwindspdm = dailysummary[0]['meanwindspdm']
-  
+          
+          dailysummary.remove!("date")
+          
+          hod=ho[1].remove("date","utcdate")
+
+          ckeys=dailysummary.keys.join(",").gsub(',', ' varchar(255),') << " varchar(255)"
+          ckeys2=hod.keys.join(",").gsub(',', ' varchar(255),') << " varchar(255)"
+          #con.query("CREATE TABLE daily_observations_new (city varchar(255),country varchar(255),date datetime,#{ckeys})") #uncommenttheseifrunningforfirsttime
+          #con.query("CREATE TABLE observations_new (city varchar(255),country varchar(255),observed_at datetime,#{ckeys2})") #uncommenttheseifrunningforfirsttime
+          
           odate=date_handler(0,ho)
   
-          con.query("INSERT INTO daily_observations(city,country,meantempm,date,maxtempm,mintempm,precipm,snowdepthm,wmo,meanwindspdm) VALUES('#{city}','#{country}','#{meantempm}','#{odate}','#{maxtempm}','#{mintempm}','#{precipm}','#{snowdepthm}','#{wmo}','#{meanwindspdm}')")
+          con.query("INSERT INTO daily_observations_new(city,country,date,#{dailysummary.keys.join(',')}) VALUES('#{city}','#{country}','#{odate}','#{dailysummary.values.join('\',\'')}')")
 
           ho.each_with_index do |v, i|
 
             iodate=date_handler(i,ho)
-
-            observationtemp = ho[i]['tempm']
-            observationconds = ho[i]['conds']
-            wspdm = ho[i]['wspdm']
+            
+            ho[i].remove!("date","utcdate")
+            
+            
     
-            con.query("INSERT INTO observations(city,country,tempm,observed_at,conditions,wmo,wspdm) VALUES('#{city}','#{country}','#{observationtemp}','#{iodate}','#{observationconds}','#{wmo}','#{wspdm}')")
+            con.query("INSERT INTO observations_new(city,country,observed_at,#{ho[i].keys.join(',')}) VALUES('#{city}','#{country}','#{iodate}','#{ho[i].values.join('\',\'')}')")
     
           end
   
